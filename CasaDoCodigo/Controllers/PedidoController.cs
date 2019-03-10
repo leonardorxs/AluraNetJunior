@@ -2,6 +2,7 @@
 using CasaDoCodigo.Models.ViewModels;
 using CasaDoCodigo.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -22,14 +23,21 @@ namespace CasaDoCodigo.Controllers
 			this.itemPedidoRepository = itemPedidoRepository;
 		}
 
-		public IActionResult Carrossel()
+		public async Task<IActionResult> Carrossel()
 		{
-			return View(produtoRepository.GetProdutos());
+			return View(await produtoRepository.GetProdutos());
 		}
 
-		public IActionResult BuscaDeProdutos()
+		public async Task<IActionResult> BuscaDeProdutos(BuscaDeProdutosViewModel buscaDeProdutos)
 		{
-			return View(produtoRepository.GetProdutos());
+			if (String.IsNullOrWhiteSpace(buscaDeProdutos.Pesquisa))
+			{
+				buscaDeProdutos.Produtos = await produtoRepository.GetProdutos();
+				return View(buscaDeProdutos);
+			}
+
+			buscaDeProdutos.Produtos = await produtoRepository.GetProdutos(buscaDeProdutos.Pesquisa);
+			return View(buscaDeProdutos);
 		}
 
 		public async Task<IActionResult> Carrinho(string codigo)
